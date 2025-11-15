@@ -473,3 +473,87 @@ footer p {
     nav { padding: 1rem 1.5rem; }
     section { padding: 6rem 1.5rem 4rem; }
 }
+
+/* Desktop Navigation */
+nav {
+    background: #000; /* Black navbar */
+    padding: 15px 40px;
+}
+
+nav ul {
+    display: flex;
+    gap: 30px;
+    list-style: none;
+}
+
+nav ul li a {
+    color: #fff; /* White text */
+    text-decoration: none;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+nav ul li a:hover,
+nav ul li a.active {
+    color: #0066cc; /* Cinematic purple accent */
+}
+
+/* Menu Toggle (Hamburger) */
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    gap: 6px;
+}
+
+.menu-toggle span {
+    width: 26px;
+    height: 3px;
+    background: #fff; /* White lines */
+    transition: 0.4s;
+}
+
+/* --- MOBILE VIEW --- */
+@media (max-width: 768px) {
+
+    nav ul {
+        position: absolute;
+        top: 70px;
+        right: 0;
+        width: 70%;
+        min-width: 230px;
+        background: #000; /* Black menu drawer */
+        flex-direction: column;
+        padding: 20px 30px;
+        display: none; /* Hidden by default */
+        border-left: 1px solid #222;
+    }
+
+    nav ul li {
+        margin-bottom: 15px;
+    }
+
+    nav ul li a {
+        color: #fff; /* White menu text */
+        font-size: 18px;
+    }
+
+    nav ul.active {
+        display: flex; /* Show when toggled */
+    }
+
+    .menu-toggle {
+        display: flex; /* Show hamburger icon */
+    }
+
+    /* Hamburger animation */
+    .menu-toggle.active span:nth-child(1) {
+        transform: rotate(45deg) translateY(8px);
+    }
+    .menu-toggle.active span:nth-child(2) {
+        opacity: 0;
+    }
+    .menu-toggle.active span:nth-child(3) {
+        transform: rotate(-45deg) translateY(-8px);
+    }
+}
