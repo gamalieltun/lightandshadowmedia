@@ -173,6 +173,4 @@ Edit CSS custom properties in `css/styles.css`:
 
 © 2025 Light & Shadow Media. All rights reserved.
 
----
 
-Built with ❤️ for visual storytellers
