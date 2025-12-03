@@ -206,6 +206,41 @@ document.addEventListener('DOMContentLoaded', () => {
       email,
       phone
     };
+    //booked seat not available to book anymore
+async function fetchBookedSeats(eventId) {
+    try {
+      const response = await fetch(`${SCRIPT_URL}?eventId=${eventId}`);
+      const data = await response.json();
+      
+      if (data.bookedSeats && Array.isArray(data.bookedSeats)) {
+        // Mark these seats as booked in your UI
+        data.bookedSeats.forEach(seatId => {
+          bookedSeats.add(seatId);
+          const seatElement = document.querySelector(`[data-seat="${seatId}"]`);
+          if (seatElement) {
+            seatElement.classList.add('booked');
+            seatElement.classList.remove('available');
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching booked seats:', error);
+    }
+  }
+  
+  // Call this when the page loads
+  document.addEventListener('DOMContentLoaded', async function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('eventId');
+    
+    if (eventId) {
+      // Fetch already booked seats before rendering
+      await fetchBookedSeats(eventId);
+    }
+    
+    // Then render your seat map
+    renderSeats();
+  });
   
     // ---- SEND VIA FORMDATA ----
     const formData = new FormData();

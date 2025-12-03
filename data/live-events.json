@@ -3,24 +3,24 @@
     
     {
       "id": "event-002",
-      "title": "Singapore Music Festival 2024",
+      "title": "Paper Airplane",
       "date": "2024-11-20",
-      "venue": "Esplanade",
-      "description": "Full concert documentation including multi-angle coverage, backstage footage, and promotional recap videos for social media.",
-      "thumbnail": "",
-      "videoUrl": "",
+      "venue": "Carnival Cinemas",
+      "description": "Movie Premier at Carnival Cinemas",
+      "thumbnail": "/assets/images/liveevents/image.png",
+      "videoUrl": "https://youtu.be/Os_YxsFZ998",
       "status": "completed",
       "category": "concert"
     },
     {
       "id": "event-003",
-      "title": "AWS re:Invent Singapore",
+      "title": "Broken Dreams",
       "date": "2024-09-10",
       "venue": "Suntec Convention Centre",
       "description": "Technical conference coverage with 6 cameras, presentation capture, and same-day highlight reels for social channels.",
-      "thumbnail": "",
-      "videoUrl": "",
-      "status": "completed",
+      "thumbnail": "/assets/images/liveevents/brokendreams.jpg",
+      "videoUrl": "https://youtu.be/45-S4DsYfk4",
+      "status": "upcoming",
       "category": "conference"
     },
     {
