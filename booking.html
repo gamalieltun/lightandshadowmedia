@@ -178,24 +178,49 @@
   </style>
 </head>
 <body>
-  <!-- same nav as other pages -->
-  <nav class="site-nav">
-    <div class="nav-inner">
-      <a href="index.html" class="nav-logo">
-        <img src="assets/images/logos/light-shadow-wordmark.svg" alt="Light & Shadow Media">
-      </a>
-      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
-        <span></span><span></span>
-      </button>
-      <div class="nav-links" id="siteNav">
-        <a href="index.html#work">Work</a>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+
+        <div class="nav-wrapper">
+            <!-- Left -->
+            <ul class="nav-links nav-left">
+                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="live-events.html">Live Events</a></li>
+            </ul>
+
+            <!-- Right -->
+            <ul class="nav-links nav-right">
+                <li><a href="corporate.html">Corporate</a></li>
+                <li><a href="film.html">Film</a></li>
+                
+            </ul>
+        </div>
+
+        <!-- Center Logo -->
+        <a href="index.html" class="logo">
+            <span class="logo-text">Light <span class="ampersand">&</span> Shadow</span>
+            <span class="logo-tagline">Media Productions</span>
+        </a>
+
+        <!-- Hamburger -->
+        <div class="menu-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="nav-mobile">
+        <a href="index.html">Home</a>
         <a href="live-events.html">Live Events</a>
         <a href="corporate.html">Corporate</a>
         <a href="film.html">Film</a>
         <a href="#contact">Contact</a>
-      </div>
     </div>
-  </nav>
+</nav>
+
 
   <header class="page-header">
     <div class="container">
