@@ -214,8 +214,57 @@
             </div>
         </div>
     </div>
+
+    <!-- Booking Modal -->
+<div class="modal" id="bookingModal">
+    <div class="modal-content">
+      <button class="modal-close" data-close-booking aria-label="Close booking modal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+  
+      <div class="modal-info">
+        <h3 id="bookingEventTitle">Book Seat</h3>
+        <p class="modal-meta" id="bookingEventMeta"></p>
+  
+        <form id="bookingForm" class="contact-form" autocomplete="off">
+          <input type="hidden" id="bookingEventId" name="eventId" />
+          <input type="hidden" id="bookingEventDate" name="eventDate" />
+          <input type="hidden" id="bookingEventVenue" name="eventVenue" />
+          <input type="hidden" id="bookingEventTitleHidden" name="eventTitle" />
+  
+          <div class="form-group">
+            <label for="bookingName">Name</label>
+            <input type="text" id="bookingName" name="name" placeholder="Your full name" required />
+          </div>
+  
+          <div class="form-row">
+            <div class="form-group">
+              <label for="bookingEmail">Email</label>
+              <input type="email" id="bookingEmail" name="email" placeholder="you@example.com" required />
+            </div>
+            <div class="form-group">
+              <label for="bookingPhone">Phone</label>
+              <input type="tel" id="bookingPhone" name="phone" placeholder="+65 9123 4567" required />
+            </div>
+          </div>
+  
+          <button type="submit" class="btn btn-primary btn-submit" id="bookingSubmitBtn">
+            Confirm Booking
+          </button>
+  
+          <p id="bookingStatus" style="margin-top: 1rem; font-size: 0.9rem;"></p>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  
     
     <!-- JavaScript -->
     <script src="js/main.js"></script>
+    <script src="js/live-events.js"></script>
 </body>
 </html>

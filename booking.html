@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Seats | Light & Shadow Media</title>
+
+  <link rel="icon" type="image/svg+xml" href="assets/images/logos/favicon.svg">
+  <link rel="stylesheet" href="css/styles.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* Simple cinema layout on top of your existing theme */
+
+    .booking-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1.3fr);
+      gap: 3rem;
+      align-items: flex-start;
+    }
+
+    @media (max-width: 900px) {
+      .booking-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .seat-map {
+      background: rgba(10, 10, 14, 0.9);
+      border-radius: 18px;
+      padding: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.7);
+    }
+
+    .screen-label {
+      text-align: center;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.25em;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 1rem;
+    }
+
+    .screen-bar {
+      height: 4px;
+      width: 60%;
+      margin: 0 auto 2rem;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.5), rgba(255,255,255,0.1));
+    }
+
+    .seat-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .seat-row {
+      display: grid;
+      grid-template-columns: auto repeat(10, minmax(0, 32px));
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .seat-row-label {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.5);
+      padding-right: 0.5rem;
+    }
+
+    .seat {
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 6px;
+      height: 32px;
+      font-size: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.12s ease, border-color 0.15s ease;
+    }
+
+    .seat:hover {
+      transform: translateY(-1px);
+      border-color: rgba(201,162,39,0.9);
+    }
+
+    .seat.selected {
+      background: radial-gradient(circle at 10% 0%, #f7e3a3 0, #c9a227 35%, #5a4312 100%);
+      border-color: transparent;
+      color: #050509;
+      font-weight: 600;
+    }
+
+    .seat.disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .seat-legend {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .legend-box {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .legend-available {
+      background: rgba(255,255,255,0.03);
+    }
+
+    .legend-selected {
+      background: #c9a227;
+    }
+
+    .booking-form-card {
+      background: rgba(10, 10, 14, 0.9);
+      border-radius: 18px;
+      padding: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.7);
+    }
+
+    .booking-summary {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 1rem;
+    }
+
+    .booking-summary span {
+      color: #c9a227;
+      font-weight: 500;
+    }
+
+    #bookingStatus {
+      margin-top: 0.8rem;
+      font-size: 0.85rem;
+    }
+    /* Add to your existing seat styles */
+.seat.booked {
+  background: rgba(255, 107, 107, 0.2);
+  border-color: rgba(255, 107, 107, 0.5);
+  cursor: not-allowed;
+  opacity: 0.6;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.seat.booked:hover {
+  transform: none;
+  border-color: rgba(255, 107, 107, 0.5);
+}
+
+/* Update legend to include booked */
+.legend-booked {
+  background: rgba(255, 107, 107, 0.3);
+  border-color: rgba(255, 107, 107, 0.5);
+}
+  </style>
+</head>
+<body>
+  <!-- same nav as other pages -->
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <img src="assets/images/logos/light-shadow-wordmark.svg" alt="Light & Shadow Media">
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+        <span></span><span></span>
+      </button>
+      <div class="nav-links" id="siteNav">
+        <a href="index.html#work">Work</a>
+        <a href="live-events.html">Live Events</a>
+        <a href="corporate.html">Corporate</a>
+        <a href="film.html">Film</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="page-header">
+    <div class="container">
+      <span class="section-label">Booking</span>
+      <h1 id="eventTitle">Loading event…</h1>
+      <div class="section-divider"></div>
+      <p id="eventMeta"></p>
+    </div>
+  </header>
+
+  <section class="section-padding">
+    <div class="container booking-layout">
+      <!-- Seat map -->
+      <div class="seat-map">
+        <div class="screen-label">Screen</div>
+        <div class="screen-bar"></div>
+
+        <div id="seatGrid" class="seat-grid"></div>
+
+        <div class="seat-legend">
+            <span class="legend-item">
+              <span class="legend-box legend-available"></span>Available
+            </span>
+            <span class="legend-item">
+              <span class="legend-box legend-selected"></span>Selected
+            </span>
+            <span class="legend-item">
+              <span class="legend-box legend-booked"></span>Booked
+            </span>
+          </div>
+      </div>
+
+      <!-- Form -->
+      <div class="booking-form-card">
+        <h2 class="section-subtitle">Your booking</h2>
+        <p class="booking-summary">
+          Selected seats: <span id="selectedSeatsLabel">None</span>
+        </p>
+
+        <form id="bookingForm" class="contact-form">
+          <!-- hidden fields -->
+          <input type="hidden" id="eventId" name="eventId">
+          <input type="hidden" id="eventDate" name="eventDate">
+          <input type="hidden" id="eventVenue" name="eventVenue">
+          <input type="hidden" id="eventTitleHidden" name="eventTitle">
+          <input type="hidden" id="selectedSeats" name="seats">
+
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" placeholder="Your full name" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" placeholder="you@example.com" required>
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" type="tel" placeholder="+65 9123 4567" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="submitBooking">
+            Confirm Booking
+          </button>
+
+          <p id="bookingStatus"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script src="js/main.js"></script>
+  <script src="js/booking.js"></script>
+</body>
+</html>

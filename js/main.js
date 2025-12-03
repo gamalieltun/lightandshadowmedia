@@ -367,33 +367,52 @@ const ProjectLoader = {
             this.showEmpty();
             return;
         }
-        
+
         let filteredData = this.data;
-        
+
         // Apply filter if not 'all'
         if (this.currentFilter !== 'all') {
             filteredData = this.data.filter(item => {
-                return item.status === this.currentFilter || 
+                return item.status === this.currentFilter ||
                        item.category === this.currentFilter ||
                        item.type === this.currentFilter;
             });
         }
-        
+
         if (filteredData.length === 0) {
             this.showEmpty();
             return;
         }
-        
-        this.grid.innerHTML = filteredData.map((item, index) => this.createCard(item, index)).join('');
-        
-        // Bind click events to cards
+
+        // Render cards
+        this.grid.innerHTML = filteredData
+            .map((item, index) => this.createCard(item, index))
+            .join('');
+
+        // Bind click events to cards + booking buttons
         this.grid.querySelectorAll('.project-card').forEach((card, index) => {
+            const item = filteredData[index];
+
+            // Whole card → open video modal (same as before)
             card.addEventListener('click', () => {
-                Modal.open(filteredData[index]);
+                if (typeof Modal !== 'undefined') {
+                    Modal.open(item);
+                }
             });
+
+            // "Book Seat" button (if present)
+            const bookBtn = card.querySelector('.js-open-booking');
+            if (bookBtn) {
+                bookBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const url = `booking.html?eventId=${encodeURIComponent(item.id)}`;
+                    window.location.href = url;
+                });
+            }
+
         });
-        
-        // Trigger stagger animation
+
+        // Stagger animation
         setTimeout(() => {
             this.grid.querySelectorAll('.project-card').forEach((card, index) => {
                 setTimeout(() => {
@@ -402,14 +421,28 @@ const ProjectLoader = {
             });
         }, 100);
     },
+
     
     createCard(item, index) {
         const category = item.client || item.venue || item.role || item.status || 'Project';
         const year = item.year || (item.date ? new Date(item.date).getFullYear() : '');
-        
+    
+        // Show booking button only on the Live Events page
+        const isLiveEvents = this.source && this.source.indexOf('live-events') !== -1;
+        const isBookable   = isLiveEvents && item.status === 'upcoming';
+
+        const bookingButton = isBookable ? `
+                <div class="project-actions" style="margin-top: 1rem;">
+                    <button class="btn btn-primary js-open-booking" type="button">
+                        Book Seat
+                    </button>
+                </div>
+        ` : '';
+
+    
         return `
             <article class="project-card stagger-item" data-index="${index}">
-                ${item.thumbnail ? 
+                ${item.thumbnail ?
                     `<img src="${item.thumbnail}" alt="${item.title}" class="project-card-image" loading="lazy">` :
                     `<div class="project-card-placeholder">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
@@ -423,15 +456,17 @@ const ProjectLoader = {
                     <span class="project-category">${category}${year ? ` • ${year}` : ''}</span>
                     <h3>${item.title}</h3>
                     <p>${item.description || ''}</p>
+                    ${bookingButton}
                 </div>
                 ${item.videoUrl ? `
                     <div class="project-play-btn">
-                        <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+                        <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></polygon></svg>
                     </div>
                 ` : ''}
             </article>
         `;
-    },
+    }
+    ,
     
     showLoading() {
         this.grid.innerHTML = `
@@ -572,3 +607,4 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 window.addEventListener('load', () => {
     document.body.classList.add('loaded');
 });
+
