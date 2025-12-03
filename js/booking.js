@@ -1,5 +1,5 @@
 // ===== CONFIG =====
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL2JdpdpN_Al-zi1uzvXogEeHMINjwUhfRO7S7_AnjWy-CANtY1IVHH6i3j4bDYfa8/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwomqasMkPK-unTXWA8ZWbM94nD8NGmUdbC03NQEM1NnqPOff8iGYSutRkyJt6p5sn0/exec';
 const EVENTS_SOURCE = 'data/live-events.json';
 
 // ===== HELPERS =====

@@ -1571,22 +1571,3 @@ a {
     }
 }
 
-/* Add to your existing seat styles */
-.seat.booked {
-    background: rgba(255, 107, 107, 0.2);
-    border-color: rgba(255, 107, 107, 0.5);
-    cursor: not-allowed;
-    opacity: 0.6;
-    color: rgba(255, 255, 255, 0.4);
-  }
-  
-  .seat.booked:hover {
-    transform: none;
-    border-color: rgba(255, 107, 107, 0.5);
-  }
-  
-  /* Update legend to include booked */
-  .legend-booked {
-    background: rgba(255, 107, 107, 0.3);
-    border-color: rgba(255, 107, 107, 0.5);
-  }
