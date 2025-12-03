@@ -1,16 +1,6 @@
 {
   "events": [
-    {
-      "id": "event-001",
-      "title": "TechCorp Annual Summit 2025",
-      "date": "2025-03-15",
-      "venue": "Marina Bay Sands",
-      "description": "Multi-camera live coverage for 2000+ attendees with real-time switching, LED wall content, and simultaneous streaming to 5 platforms.",
-      "thumbnail": "",
-      "videoUrl": "",
-      "status": "upcoming",
-      "category": "conference"
-    },
+    
     {
       "id": "event-002",
       "title": "Singapore Music Festival 2024",
@@ -43,39 +33,6 @@
       "videoUrl": "",
       "status": "upcoming",
       "category": "gala"
-    },
-    {
-      "id": "event-005",
-      "title": "FinTech Summit Asia",
-      "date": "2024-08-15",
-      "venue": "Marina Bay Sands Expo",
-      "description": "Two-day conference with keynote captures, panel discussions, and networking event coverage. Live streamed to global audience.",
-      "thumbnail": "",
-      "videoUrl": "",
-      "status": "completed",
-      "category": "conference"
-    },
-    {
-      "id": "event-006",
-      "title": "National Day Parade Preview",
-      "date": "2024-08-01",
-      "venue": "The Float @ Marina Bay",
-      "description": "Official documentation of NDP rehearsals including aerial coverage, ground-level action, and behind-the-scenes moments.",
-      "thumbnail": "",
-      "videoUrl": "",
-      "status": "completed",
-      "category": "special"
-    },
-    {
-      "id": "event-007",
-      "title": "Singapore Fashion Week 2025",
-      "date": "2025-04-10",
-      "venue": "National Gallery",
-      "description": "Runway coverage with cinematic lighting, designer interviews, and backstage preparations for the premier fashion event.",
-      "thumbnail": "",
-      "videoUrl": "",
-      "status": "upcoming",
-      "category": "fashion"
     },
     {
       "id": "event-008",
