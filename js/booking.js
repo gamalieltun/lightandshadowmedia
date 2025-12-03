@@ -1,5 +1,5 @@
 // ===== CONFIG =====
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxw7U-Qadj4ibgiyLR6C28UlL0xKE5MO6YDTqVu-sEUzd5tCqNuLJZICh8pW5tdZlU_/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzxnMORDl1OqL4EPjUK5MmdhOkeVd5Z-ia5-WpKuF7zY0rregqZW5VbNeVYfP5rkD0/exec';
 const EVENTS_SOURCE = 'data/live-events.json';
 
 // ===== HELPERS =====
@@ -170,6 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
       selectedSeatsLabel.textContent = list.length ? list.join(', ') : 'None';
     });
   }
+    
 
   bookingForm.addEventListener('submit', (e) => {
     e.preventDefault();
