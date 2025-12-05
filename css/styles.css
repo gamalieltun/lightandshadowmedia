@@ -131,7 +131,7 @@ a {
 }
 
 .section-padding {
-    padding: var(--space-xl) 0;
+    padding: 50px 0;
 }
 
 .text-center {
@@ -162,6 +162,7 @@ a {
 /* ============================================
    NAVIGATION
    ============================================ */
+
 /* ============================================
    NAVIGATION (DESKTOP)
    ============================================ */
@@ -236,34 +237,39 @@ a {
 }
 
 /* NAV LINKS */
+/* STRONG BUTTON NAV */
 .nav-links a {
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: var(--color-text-secondary);
-    position: relative;
-    padding-bottom: 6px;
+    padding: 10px 22px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--color-text-primary);
+    transition: var(--transition-smooth);
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(4px);
 }
 
-.nav-links a:hover,
-.nav-links a.active {
+.nav-links a:hover {
     color: var(--color-text-primary);
+    border-color: var(--color-gold);
+    background: rgba(201,162,39,0.15);
+}
+
+.nav-links a.active {
+    background: var(--color-gold);
+    color: var(--color-bg-primary);
+    border-color: var(--color-gold);
+    box-shadow: 0 0 18px rgba(201,162,39,0.5);
 }
 
 .nav-links a::after {
-    content: "";
-    position: absolute;
-    bottom: 0; left: 0;
-    height: 2px;
-    width: 0%;
-    background: var(--color-gold);
-    transition: var(--transition-smooth);
+    display: none !important;
+}
+.nav-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-.nav-links a:hover::after,
-.nav-links a.active::after {
-    width: 100%;
-}
 
 /* ============================================
    MOBILE NAV
@@ -396,11 +402,6 @@ a {
     margin-bottom: var(--space-md);
     opacity: 0;
     animation: fadeInUp 1s ease 0.3s forwards;
-    display: block;
-    width: 100%;
-    text-align: center !important;
-    margin-left: auto;
-    margin-right: auto;
 
 } 
 
@@ -434,6 +435,7 @@ a {
     text-align: center !important;
     margin-left: auto;
     margin-right: auto;
+
 }
 
 .hero-cta {
@@ -1464,20 +1466,17 @@ a {
     }
 }
 
-/* SERVICES SECTION FIX (1 card per row) */
+
+/* ABOUT SECTION FIX — TEXT FIRST → IMAGE → STATS */
 @media (max-width: 900px) {
     .services-grid {
         grid-template-columns: 1fr;
         gap: 2rem;
-        padding: 0 1.2rem;
+        
     }
     .service-card {
         padding: 2.5rem 1.6rem;
     }
-}
-
-/* ABOUT SECTION FIX — TEXT FIRST → IMAGE → STATS */
-@media (max-width: 900px) {
     .about-content {
         display: flex;
         flex-direction: column; /* forces text above image */
@@ -1570,3 +1569,4 @@ a {
         line-height: 1.6;
     }
 }
+
