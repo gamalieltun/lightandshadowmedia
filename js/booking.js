@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.type = 'button';
             btn.className = 'seat';
             btn.dataset.seat = seatCode;
-            btn.textContent = i;
+            btn.textContent = '';
     
             // Mark as booked if in bookedSeats set
             if (bookedSeats.has(seatCode)) {

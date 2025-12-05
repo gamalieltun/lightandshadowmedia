@@ -76,14 +76,17 @@
     .seat {
       border: 1px solid rgba(255, 255, 255, 0.18);
       background: rgba(255, 255, 255, 0.02);
-      border-radius: 6px;
-      height: 32px;
-      font-size: 0.7rem;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       transition: background 0.15s ease, transform 0.12s ease, border-color 0.15s ease;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      padding: 0;
+      font-size: 0; /* hides any leftover text */
+
     }
 
     .seat:hover {
@@ -92,10 +95,12 @@
     }
 
     .seat.selected {
-      background: radial-gradient(circle at 10% 0%, #f7e3a3 0, #c9a227 35%, #5a4312 100%);
-      border-color: transparent;
+      /* background: radial-gradient(circle at 10% 0%, #f7e3a3 0, #c9a227 35%, #5a4312 100%); */
+      /* border-color: transparent; */
       color: #050509;
       font-weight: 600;
+      background: #c9a227;
+      border-color: #c9a227;
     }
 
     .seat.disabled {
