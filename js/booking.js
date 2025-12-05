@@ -1,6 +1,14 @@
 // ===== CONFIG =====
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwzxnMORDl1OqL4EPjUK5MmdhOkeVd5Z-ia5-WpKuF7zY0rregqZW5VbNeVYfP5rkD0/exec';
+const GOOGLE_SCRIPT_URL =
+  'https://script.google.com/macros/s/AKfycbwzxnMORDl1OqL4EPjUK5MmdhOkeVd5Z-ia5-WpKuF7zY0rregqZW5VbNeVYfP5rkD0/exec';
+
 const EVENTS_SOURCE = 'data/live-events.json';
+const SEATMAP_SOURCE = 'data/seatmap.json';
+
+let seatmap = {};
+let bookedSeats = new Set();
+let selectedSeats = new Set();
+
 
 // ===== HELPERS =====
 function getQueryParam(name) {
@@ -19,8 +27,10 @@ function formatDateLabel(dateStr) {
   });
 }
 
+
 // ===== MAIN =====
 document.addEventListener('DOMContentLoaded', () => {
+
   const eventId = getQueryParam('eventId');
 
   const titleEl = document.getElementById('eventTitle');
@@ -38,28 +48,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const bookingStatus = document.getElementById('bookingStatus');
   const submitBtn = document.getElementById('submitBooking');
 
-  let selectedSeats = new Set();
-  let bookedSeats = new Set(); // Track already booked seats
   let currentEvent = null;
 
-  // If no eventId in URL -> stop
+
+  // ---------------------------
+  // If no eventId provided
+  // ---------------------------
   if (!eventId) {
     titleEl.textContent = 'Event not found';
     metaEl.textContent = 'Missing event ID.';
-    if (seatGrid) {
-      seatGrid.innerHTML = '<p style="color:#a0a0a8;">No event selected.</p>';
-    }
+    seatGrid.innerHTML = '<tr><td colspan="100"><p style="color:#a0a0a8;">No event selected.</p></td></tr>';
     return;
   }
 
-  // ===== Load event details from JSON =====
+
+  // ---------------------------
+  // Load event details
+  // ---------------------------
   fetch(EVENTS_SOURCE)
-    .then(res => {
-      if (!res.ok) throw new Error(`Failed to load JSON (${res.status})`);
-      return res.json();
-    })
+    .then(res => res.json())
     .then(data => {
-      console.log('Loaded events from', EVENTS_SOURCE, data);
       const events = data.events || [];
       currentEvent = events.find(e => e.id === eventId);
 
@@ -69,198 +77,305 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Fill header
+      // Fill UI
       titleEl.textContent = currentEvent.title;
-      metaEl.textContent = `${currentEvent.venue || ''} • ${formatDateLabel(currentEvent.date)}`;
+      metaEl.textContent = `${currentEvent.venue} • ${formatDateLabel(currentEvent.date)}`;
 
-      // Hidden fields for Google Sheets
+      // Hidden fields
       eventIdInput.value = currentEvent.id;
-      eventDateInput.value = currentEvent.date || '';
-      eventVenueInput.value = currentEvent.venue || '';
-      eventTitleHidden.value = currentEvent.title || '';
+      eventDateInput.value = currentEvent.date;
+      eventVenueInput.value = currentEvent.venue;
+      eventTitleHidden.value = currentEvent.title;
 
-      // Load booked seats, then build seat map
-      loadBookedSeats();
+      // Now load seatmap.json
+      loadSeatMap();
     })
     .catch(err => {
-      console.error('Failed to load events JSON from', EVENTS_SOURCE, err);
+      console.error("Failed to load events.json:", err);
       titleEl.textContent = 'Error loading event';
       metaEl.textContent = 'Please try again later.';
     });
 
-  // ===== Load booked seats from Google Sheets =====
+
+
+  // ==========================================================
+  // LOAD SEATMAP
+  // ==========================================================
+  function loadSeatMap() {
+    fetch(SEATMAP_SOURCE)
+      .then(res => res.json())
+      .then(data => {
+        console.log("Loaded seatmap:", data);
+        seatmap = data;
+
+        // After loading layout, load booked seats
+        loadBookedSeats();
+      })
+      .catch(err => {
+        console.error("Failed to load seatmap.json:", err);
+        seatGrid.innerHTML =
+          '<tr><td colspan="100"><p style="color:#a0a0a8;">Unable to load seating layout.</p></td></tr>';
+      });
+  }
+
+
+
+  // ==========================================================
+  // LOAD BOOKED SEATS FROM GOOGLE SHEETS
+  // ==========================================================
   function loadBookedSeats() {
     const url = `${GOOGLE_SCRIPT_URL}?eventId=${encodeURIComponent(eventId)}`;
-    
+
     fetch(url)
       .then(res => res.json())
       .then(data => {
-        console.log('Booked seats:', data);
-        
-        if (data.bookedSeats && Array.isArray(data.bookedSeats)) {
+        console.log("Booked seats:", data);
+
+        if (Array.isArray(data.bookedSeats)) {
           bookedSeats = new Set(data.bookedSeats);
         }
-        
-        // Now build the seat map with booked seats marked
+
+        // Now build UI
         buildSeatMap();
       })
       .catch(err => {
-        console.error('Failed to load booked seats:', err);
-        // Still build seat map even if loading fails
+        console.error("Failed to load booked seats:", err);
         buildSeatMap();
       });
   }
 
-    // ===== Seat map =====
-    function buildSeatMap() {
-        if (!seatGrid) return;
+
+
+  // ==========================================================
+  // BUILD EXACT CARNIVAL CINEMA SEAT MAP
+  // ==========================================================
+  function buildSeatMap() {
+    seatGrid.innerHTML = '';
+
+    // Get sections from seatmap
+    const sections = [];
     
-        const rows = ['A', 'B', 'C', 'D', 'E', 'F'];
-        const seatsPerRow = 10;
+    // Add PREMIUM section if exists
+    if (seatmap.PREMIUM) {
+      sections.push({ name: 'PREMIUM', rows: seatmap.PREMIUM });
+    }
     
-        seatGrid.innerHTML = '';
-    
-        rows.forEach(rowLetter => {
-          const rowEl = document.createElement('div');
-          rowEl.className = 'seat-row';
-    
-          const label = document.createElement('div');
-          label.className = 'seat-row-label';
-          label.textContent = rowLetter;
-          rowEl.appendChild(label);
-    
-          for (let i = 1; i <= seatsPerRow; i++) {
-            const seatCode = `${rowLetter}${i}`;
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'seat';
-            btn.dataset.seat = seatCode;
-            btn.textContent = '';
-    
-            // Mark as booked if in bookedSeats set
+    // Add PLATINUM section if exists
+    if (seatmap.PLATINUM) {
+      sections.push({ name: 'PLATINUM', rows: seatmap.PLATINUM });
+    }
+
+    sections.forEach((section, sectionIndex) => {
+      // Add spacing before section (except first)
+      if (sectionIndex > 0) {
+        const spacerRow = document.createElement('tr');
+        spacerRow.innerHTML = '<td>&nbsp;</td>';
+        seatGrid.appendChild(spacerRow);
+        
+        const spacerRow2 = document.createElement('tr');
+        spacerRow2.innerHTML = '<td>&nbsp;</td>';
+        seatGrid.appendChild(spacerRow2);
+      }
+
+      // Add section header
+      const headerRow = document.createElement('tr');
+      headerRow.align = 'center';
+      const headerCell = document.createElement('td');
+      headerCell.className = 'MovieClass';
+      headerCell.colSpan = 250;
+      headerCell.textContent = section.name;
+      headerRow.appendChild(headerCell);
+      seatGrid.appendChild(headerRow);
+
+      // Empty row after header
+      const emptyRow = document.createElement('tr');
+      seatGrid.appendChild(emptyRow);
+
+      // Build each row in the section
+      const rowLetters = Object.keys(section.rows);
+      rowLetters.forEach(rowLetter => {
+        const seatsInRow = section.rows[rowLetter];
+        const tr = document.createElement('tr');
+        tr.align = 'center';
+
+        // Row label
+        const labelTd = document.createElement('td');
+        labelTd.textContent = rowLetter;
+        tr.appendChild(labelTd);
+
+        // Determine the maximum seat number for this row
+        const maxSeat = Math.max(...seatsInRow);
+
+        // Create cells for all positions from 1 to maxSeat
+        for (let seatNum = 1; seatNum <= maxSeat; seatNum++) {
+          const td = document.createElement('td');
+          
+          if (seatsInRow.includes(seatNum)) {
+            const seatCode = `${rowLetter}${seatNum}`;
+            
+            const checkboxWrapper = document.createElement('div');
+            checkboxWrapper.className = 'squaredCheckBoxStyle';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.name = 'SelectSeatCheckBoxGroup';
+            checkbox.value = seatCode;
+            checkbox.id = seatCode;
+
+            // Check if seat is booked
             if (bookedSeats.has(seatCode)) {
-              btn.classList.add('booked');
-              btn.disabled = true;
-              btn.title = 'Already booked';
+              checkbox.disabled = true;
             }
-    
-            rowEl.appendChild(btn);
-          }
-    
-          seatGrid.appendChild(rowEl);
-        });
-      }
-    
-      // Single click handler for seat selection (attached ONCE)
-      if (seatGrid) {
-        seatGrid.addEventListener('click', (e) => {
-          const seat = e.target.closest('.seat');
-          if (!seat || seat.classList.contains('booked') || seat.disabled) return;
-    
-          const seatCode = seat.dataset.seat;
-    
-          if (selectedSeats.has(seatCode)) {
-            selectedSeats.delete(seatCode);
-            seat.classList.remove('selected');
+
+            const label = document.createElement('label');
+            label.htmlFor = seatCode;
+
+            checkboxWrapper.appendChild(checkbox);
+            checkboxWrapper.appendChild(label);
+            td.appendChild(checkboxWrapper);
           } else {
-            selectedSeats.add(seatCode);
-            seat.classList.add('selected');
+            // Empty space (aisle)
+            td.innerHTML = '&nbsp;';
           }
-    
-          const list = Array.from(selectedSeats);
-          selectedSeatsInput.value = list.join(', ');
-          selectedSeatsLabel.textContent = list.length ? list.join(', ') : 'None';
-        });
-      }
-    
-      // ===== Booking submit =====
-      bookingForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-    
-        const name = bookingForm.name.value.trim();
-        const email = bookingForm.email.value.trim();
-        const phone = bookingForm.phone.value.trim();
-        const seats = selectedSeatsInput.value.trim();
-    
-        if (!seats) {
-          bookingStatus.textContent = 'Please select at least one seat.';
-          bookingStatus.style.color = '#ff6b6b';
-          return;
+
+          tr.appendChild(td);
         }
-    
-        if (!name || !email || !phone) {
-          bookingStatus.textContent = 'Please fill in all details.';
-          bookingStatus.style.color = '#ff6b6b';
-          return;
-        }
-    
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Submitting...';
-        bookingStatus.textContent = '';
-        bookingStatus.style.color = '#a0a0a8';
-    
-        const payload = {
-          eventId: eventIdInput.value,
-          eventTitle: eventTitleHidden.value,
-          eventDate: eventDateInput.value,
-          venue: eventVenueInput.value,
-          seats,
-          name,
-          email,
-          phone
-        };
-    
-        const formData = new FormData();
-        formData.append('data', JSON.stringify(payload));
-    
-        fetch(GOOGLE_SCRIPT_URL, {
-          method: 'POST',
-          body: formData
-        })
-          .then(res => {
-            // Try to read JSON (Apps Script returns JSON from doPost)
-            return res.json().catch(() => null);
-          })
-          .then(data => {
-            console.log('Booking response:', data);
-    
-            // If backend returns nothing usable, assume success
-            if (!data || typeof data.success === 'undefined') {
-              bookingStatus.textContent = 'Booking submitted! We will contact you with details.';
-              bookingStatus.style.color = '#c9a227';
-            } else if (data.success) {
-              bookingStatus.textContent = data.message || 'Booking confirmed!';
-              bookingStatus.style.color = '#c9a227';
-            } else if (data.conflict) {
-              // Our protected doPost may send: { success:false, conflict:true, conflictSeats:["A1","A2"] }
-              const taken = (data.conflictSeats || []).join(', ');
-              bookingStatus.textContent =
-                `Sorry, these seats were just booked by someone else: ${taken}. Please choose different seats.`;
-              bookingStatus.style.color = '#ff6b6b';
-            } else {
-              bookingStatus.textContent =
-                data.message || 'Booking failed. Please try again.';
-              bookingStatus.style.color = '#ff6b6b';
-            }
-    
-            // Refresh from server so UI matches reality (important if conflict)
-            selectedSeats.clear();
-            selectedSeatsLabel.textContent = 'None';
-            selectedSeatsInput.value = '';
-            bookingForm.reset();
-    
-            // Reload booked seats from Google Sheets and rebuild map
-            loadBookedSeats();
-          })
-          .catch(err => {
-            console.error('Booking error:', err);
-            bookingStatus.textContent = 'Network error. Please try again.';
-            bookingStatus.style.color = '#ff6b6b';
-          })
-          .finally(() => {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Confirm Booking';
-          });
+
+        // Add empty cell at the end
+        const endTd = document.createElement('td');
+        tr.appendChild(endTd);
+
+        seatGrid.appendChild(tr);
       });
-});
+    });
+
+    // Attach event listeners to all checkboxes
+    attachCheckboxListeners();
+  }
+
+
+
+  // ==========================================================
+  // ATTACH CHECKBOX LISTENERS
+  // ==========================================================
+  function attachCheckboxListeners() {
+    const checkboxes = document.querySelectorAll('.squaredCheckBoxStyle input[type="checkbox"]');
     
+    checkboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+        updateSelectedSeats();
+      });
+    });
+  }
+
+
+
+  // ==========================================================
+  // UPDATE SELECTED SEATS DISPLAY
+  // ==========================================================
+  function updateSelectedSeats() {
+    const checkedBoxes = document.querySelectorAll('.squaredCheckBoxStyle input[type="checkbox"]:checked');
+    selectedSeats = new Set(Array.from(checkedBoxes).map(cb => cb.value));
+
+    const sortedSeats = Array.from(selectedSeats).sort();
+
+    // Update hidden input
+    selectedSeatsInput.value = sortedSeats.join(', ');
+
+    // Update display
+    if (sortedSeats.length === 0) {
+      selectedSeatsLabel.innerHTML = '<span style="color: #888;">No seats selected</span>';
+    } else {
+      selectedSeatsLabel.innerHTML = sortedSeats
+        .map(seat => `<span class="seat-tag">${seat}</span>`)
+        .join('');
+    }
+  }
+
+
+
+  // ==========================================================
+  // BOOKING FORM SUBMIT
+  // ==========================================================
+  bookingForm.addEventListener('submit', e => {
+    e.preventDefault();
+
+    const name = bookingForm.name.value.trim();
+    const email = bookingForm.email.value.trim();
+    const phone = bookingForm.phone.value.trim();
+    const seats = selectedSeatsInput.value.trim();
+
+    if (!seats) {
+      bookingStatus.textContent = 'Please select at least one seat.';
+      bookingStatus.style.color = '#ff6b6b';
+      return;
+    }
+    if (!name || !email || !phone) {
+      bookingStatus.textContent = 'Please fill in all details.';
+      bookingStatus.style.color = '#ff6b6b';
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+    bookingStatus.textContent = '';
+    bookingStatus.style.color = '#a0a0a8';
+
+    const payload = {
+      eventId: eventIdInput.value,
+      eventTitle: eventTitleHidden.value,
+      eventDate: eventDateInput.value,
+      venue: eventVenueInput.value,
+      seats,
+      name,
+      email,
+      phone
+    };
+
+    const formData = new FormData();
+    formData.append('data', JSON.stringify(payload));
+
+    fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
+      .then(res => res.json().catch(() => null))
+      .then(data => {
+        console.log("Booking response:", data);
+
+        if (!data || typeof data.success === 'undefined') {
+          bookingStatus.textContent = 'Booking submitted! We will contact you soon.';
+          bookingStatus.style.color = '#c9a227';
+        }
+        else if (data.success) {
+          bookingStatus.textContent = data.message || 'Booking confirmed!';
+          bookingStatus.style.color = '#c9a227';
+        }
+        else if (data.conflict) {
+          const taken = (data.conflictSeats || []).join(', ');
+          bookingStatus.textContent =
+            `Sorry, these seats were just booked: ${taken}. Choose others.`;
+          bookingStatus.style.color = '#ff6b6b';
+        }
+        else {
+          bookingStatus.textContent = data.message || 'Booking failed.';
+          bookingStatus.style.color = '#ff6b6b';
+        }
+
+        // Reset UI
+        selectedSeats.clear();
+        selectedSeatsInput.value = '';
+        bookingForm.reset();
+
+        // Reload everything cleanly
+        loadSeatMap();
+      })
+      .catch(err => {
+        console.error("Booking error:", err);
+        bookingStatus.textContent = 'Network error. Please try again.';
+        bookingStatus.style.color = '#ff6b6b';
+      })
+      .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Confirm Booking';
+      });
+  });
+
+});
